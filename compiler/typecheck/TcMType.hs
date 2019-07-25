@@ -1326,10 +1326,7 @@ collect_cand_qtvs_co bound = go_co
     go_co dv (KindCo co)           = go_co dv co
     go_co dv (SubCo co)            = go_co dv co
 
-    go_co dv (HoleCo hole) = do m_co <- unpackCoercionHole_maybe hole
-                                case m_co of
-                                  Just co -> go_co dv co
-                                  Nothing -> go_cv dv (coHoleCoVar hole)
+    go_co dv (HoleCo hole)         = go_cohole dv coholes
 
     go_co dv (CoVarCo cv) = go_cv dv cv
 
@@ -1345,6 +1342,9 @@ collect_cand_qtvs_co bound = go_co
     go_prov dv (ProofIrrelProv co) = go_co dv co
     go_prov dv (PluginProv _)      = return dv
     go_prov dv (ZappedProv fvs)    = foldlM go_cv dv (dVarSetElems fvs)
+    go_prov dv (TcZappedProv fvs coholes)
+                                   = do dv1 <- foldlM go_cv dv (dVarSetElems fvs)
+                                        foldlM go_cohole dv1 coholes
 
     go_cv :: CandidatesQTvs -> CoVar -> TcM CandidatesQTvs
     go_cv dv@(DV { dv_cvs = cvs }) cv
@@ -1353,6 +1353,14 @@ collect_cand_qtvs_co bound = go_co
       | otherwise           = collect_cand_qtvs True emptyVarSet
                                     (dv { dv_cvs = cvs `extendVarSet` cv })
                                     (idType cv)
+
+    go_cohole :: CandidatesQTvs -> CoHole -> TcM CandidatesQTvs
+    go_cohole dv cohole
+      = do { m_co <- unpackCoercionHole_maybe hole
+           ; case m_co of
+               Just co -> go_co dv co
+               Nothing -> go_cv dv (coHoleCoVar hole)
+           }
 
     is_bound tv = tv `elemVarSet` bound
 

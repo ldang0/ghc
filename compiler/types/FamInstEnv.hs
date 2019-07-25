@@ -1748,6 +1748,8 @@ allTyCoVarsInTy = go
     go_prov (ProofIrrelProv co) = go_co co
     go_prov (PluginProv _)      = emptyVarSet
     go_prov (ZappedProv fvs)    = dVarSetToVarSet fvs
+    go_prov (TcZappedProv fvs coholes)
+                                = dVarSetToVarSet fvs `unionVarSet` mkVarSet (map coHoleCoVar coholes)
 
 mkFlattenFreshTyName :: Uniquable a => a -> Name
 mkFlattenFreshTyName unq

@@ -284,6 +284,7 @@ toIfaceCoercionX fr co
                               | isCoVar v = (a, toIfaceCoVar v:b, c)
                               | isTyVar v = (toIfaceTyVar v:a, b, c)
                               | otherwise = panic "ToIface.toIfaceCoercionX(go_prov): Bad free variable in ZappedProv"
+    go_prov (TcZappedProv _ _)  = panic "ToIface.toIfaceCoercionX(go_prov): TcZappedProv"
 
 toIfaceTcArgs :: TyCon -> [Type] -> IfaceAppArgs
 toIfaceTcArgs = toIfaceTcArgsX emptyVarSet

@@ -1021,6 +1021,8 @@ exactTyCoVarsOfType ty
     goProv (ProofIrrelProv kco) = goCo kco
     goProv (PluginProv _)       = emptyVarSet
     goProv (ZappedProv fvs)     = dVarSetToVarSet fvs
+    goProv (TcZappedProv fvs coholes)
+                                = dVarSetToVarSet fvs `unionDVarSets` mkVarSet (map coHoleCoVar coholes)
 
     goVar v = unitVarSet v `unionVarSet` go (varType v)
 

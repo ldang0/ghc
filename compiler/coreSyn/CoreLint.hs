@@ -1790,6 +1790,10 @@ lintCoercion co@(UnivCo prov r ty1 ty2)
 
            PluginProv _     -> return ()  -- no extra checks
            ZappedProv fvs   -> mapM_ lintTyCoVarInScope (dVarSetElems fvs)
+           TcZappedProv fvs coholes
+                            -> do { addErrL $ text "Unfilled coercion hole:" <+> ppr h
+                                  ; mapM_ lintTyCoVarInScope (dVarSetElems fvs)
+                                  }
 
        ; when (r /= Phantom && classifiesTypeWithValues k1
                             && classifiesTypeWithValues k2)

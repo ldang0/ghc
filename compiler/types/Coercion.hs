@@ -980,6 +980,7 @@ mkSymCo co | isReflCo co          = co
 mkSymCo    (SymCo co)             = co
 mkSymCo    (SubCo (SymCo co))     = SubCo co
 mkSymCo (UnivCo (ZappedProv fvs) r t1 t2) = UnivCo (ZappedProv fvs) r t2 t1
+mkSymCo (UnivCo (TcZappedProv fvs coholes) r t1 t2) = UnivCo (TcZappedProv fvs coholes) r t2 t1
 -- TODO: Handle other provenances
 mkSymCo co                        = SymCo co
 
@@ -1137,6 +1138,10 @@ mkLRCo lr (UnivCo (ZappedProv fvs) r t1 t2)
                        = UnivCo (ZappedProv fvs) r
                                 (pickLR lr (splitAppTy t1))
                                 (pickLR lr (splitAppTy t2))
+mkLRCo lr (UnivCo (TcZappedProv fvs coholes) r t1 t2)
+                       = UnivCo (TcZappedProv fvs coholes) r
+                                (pickLR lr (splitAppTy t1))
+                                (pickLR lr (splitAppTy t2))
 mkLRCo lr co
   | Just (ty, eq) <- isReflCo_maybe co
   = mkReflCo eq (pickLR lr (splitAppTy ty))
@@ -1194,6 +1199,7 @@ mkKindCo (GRefl _ _ (MCo co)) = co
 mkKindCo (UnivCo (PhantomProv h) _ _ _)    = h
 mkKindCo (UnivCo (ProofIrrelProv h) _ _ _) = h
 mkKindCo (UnivCo (ZappedProv fvs) _ ty1 ty2) = mkUnivCo (ZappedProv fvs) Nominal (typeKind ty1) (typeKind ty2)
+mkKindCo (UnivCo (TcZappedProv fvs coholes) _ ty1 ty2) = mkUnivCo (TcZappedProv fvs coholes) Nominal (typeKind ty1) (typeKind ty2)
 mkKindCo co
   | Pair ty1 ty2 <- coercionKind co
        -- generally, calling coercionKind during coercion creation is a bad idea,
@@ -1218,6 +1224,7 @@ mkSubCo (FunCo Nominal arg res)
           (downgradeRole Representational Nominal arg)
           (downgradeRole Representational Nominal res)
 mkSubCo (UnivCo (ZappedProv fvs) Nominal t1 t2) = UnivCo (ZappedProv fvs) Representational t1 t2
+mkSubCo (UnivCo (TcZappedProv fvs coholes) Nominal t1 t2) = UnivCo (TcZappedProv fvs coholes) Representational t1 t2
 mkSubCo co@(SubCo _) = co
 mkSubCo co = ASSERT2( coercionRole co == Nominal, ppr co <+> ppr (coercionRole co) )
              SubCo co
@@ -1320,6 +1327,7 @@ setNominalRole_maybe r co
                      ProofIrrelProv _ -> True   -- it's always safe
                      PluginProv _     -> False  -- who knows? This choice is conservative.
                      ZappedProv _     -> False  -- conservatively say no
+                     TcZappedProv _ _ -> False  -- conservatively say no
       = Just $ UnivCo prov Nominal co1 co2
     setNominalRole_maybe_helper _ = Nothing
 
@@ -1427,7 +1435,7 @@ promoteCoercion co = case co of
     UnivCo (PhantomProv kco) _ _ _    -> kco
     UnivCo (ProofIrrelProv kco) _ _ _ -> kco
     UnivCo (PluginProv _) _ _ _       -> mkKindCo co
-    UnivCo (ZappedProv _) _ _ _       -> mkKindCo co
+    UnivCo (TcZappedProv _ _) _ _ _   -> mkKindCo co
 
     SymCo g
       -> mkSymCo (promoteCoercion g)
@@ -2412,10 +2420,14 @@ seqProv (PhantomProv co)    = seqCo co
 seqProv (ProofIrrelProv co) = seqCo co
 seqProv (PluginProv _)      = ()
 seqProv (ZappedProv fvs)    = seqDVarSet fvs
+seqProv (TcZappedProv fvs coholes) = seqDVarSet fvs `seq` seqList (\h -> coHoleCoVar h `seq` ()) coholes
+
+seqList :: (a -> ()) -> [a] -> ()
+seqList _ [] = ()
+seqList f (x:xs) = f x `seq` seqList f xs
 
 seqCos :: [Coercion] -> ()
-seqCos []       = ()
-seqCos (co:cos) = seqCo co `seq` seqCos cos
+seqCos = seqList seqCo
 
 {-
 %************************************************************************

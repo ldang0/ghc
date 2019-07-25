@@ -1653,6 +1653,10 @@ data UnivCoProvenance
     -- Free variables must be tracked in 'DVarSet' since they appear in
     -- interface files. See Note [Deterministic UniqFM] for details.
 
+  | TcZappedProv { zappedFreeVars :: DTyCoVarSet
+                 , zappedCoHoles  :: CoercionHole
+                 }
+
   deriving Data.Data
 
 instance Outputable UnivCoProvenance where
@@ -1661,6 +1665,8 @@ instance Outputable UnivCoProvenance where
   ppr (ProofIrrelProv _) = text "(proof irrel.)"
   ppr (PluginProv str)   = parens (text "plugin" <+> brackets (text str))
   ppr (ZappedProv fvs)   = parens (text "zapped" <+> brackets (ppr fvs))
+  ppr (TcZappedProv fvs cocoles)
+                         = parens (text "zapped" <+> brackets (ppr fvs) <+> brackets (ppr coholes))
 
 -- | A coercion to be filled in by the type-checker. See Note [Coercion holes]
 data CoercionHole
@@ -2026,6 +2032,10 @@ ty_co_vars_of_prov (ProofIrrelProv co) is acc = ty_co_vars_of_co co is acc
 ty_co_vars_of_prov UnsafeCoerceProv    _  acc = acc
 ty_co_vars_of_prov (PluginProv _)      _  acc = acc
 ty_co_vars_of_prov (ZappedProv fvs)    _  acc = dVarSetToVarSet fvs `unionVarSet` acc
+ty_co_vars_of_prov (TcZappedProv fvs coholes) _  acc
+                                              = mkDVarSet (map coHoleCoVar coholes
+                                                `unionVarSet` dVarSetToVarSet fvs
+                                                `unionVarSet` acc
 
 -- | Generates an in-scope set from the free variables in a list of types
 -- and a list of coercions
@@ -2174,6 +2184,8 @@ tyCoFVsOfProv (PhantomProv co)    fv_cand in_scope acc = tyCoFVsOfCo co fv_cand 
 tyCoFVsOfProv (ProofIrrelProv co) fv_cand in_scope acc = tyCoFVsOfCo co fv_cand in_scope acc
 tyCoFVsOfProv (PluginProv _)      fv_cand in_scope acc = emptyFV fv_cand in_scope acc
 tyCoFVsOfProv (ZappedProv fvs)    fv_cand in_scope acc = (mkFVs $ dVarSetElems fvs) fv_cand in_scope acc
+tyCoFVsOfProv (TcZappedProv fvs coholes)
+                                  fv_cand in_scope acc = (mkFVs $ dVarSetElems fvs ++ map coHoleCoVar coholes) fv_cand in_scope acc
 
 tyCoFVsOfCos :: [Coercion] -> FV
 tyCoFVsOfCos []       fv_cand in_scope acc = emptyFV fv_cand in_scope acc
@@ -2280,6 +2292,7 @@ almost_devoid_co_var_of_prov (ProofIrrelProv co) cv
 almost_devoid_co_var_of_prov UnsafeCoerceProv _ = True
 almost_devoid_co_var_of_prov (PluginProv _) _ = True
 almost_devoid_co_var_of_prov (ZappedProv fvs) cv = cv `elemDVarSet` fvs
+almost_devoid_co_var_of_prov (TcZappedProv fvs coholes) cv = cv `elemDVarSet` fvs || cv `elem` map coHoleCoVar coholes
 
 almost_devoid_co_var_of_type :: Type -> CoVar -> Bool
 almost_devoid_co_var_of_type (TyVarTy _) _ = True
@@ -2667,6 +2680,7 @@ noFreeVarsOfProv (PhantomProv co)    = noFreeVarsOfCo co
 noFreeVarsOfProv (ProofIrrelProv co) = noFreeVarsOfCo co
 noFreeVarsOfProv (PluginProv {})     = True
 noFreeVarsOfProv (ZappedProv fvs)    = isEmptyDVarSet fvs
+noFreeVarsOfProv (TcZappedProv fvs coholes) = isEmptyDVarSet fvs && null coholes
 
 {-
 %************************************************************************
@@ -3408,6 +3422,8 @@ subst_co subst co
     go_prov (ProofIrrelProv kco) = ProofIrrelProv (go kco)
     go_prov p@(PluginProv _)     = p
     go_prov (ZappedProv fvs)     = ZappedProv (substFreeDVarSet subst fvs)
+    go_prov (TcZappedProv fvs coholes)
+                                 = TcZappedProv (substFreeDVarSet subst fvs) coholes
 
     -- See Note [Substituting in a coercion hole]
     go_hole h@(CoercionHole { ch_co_var = cv })
@@ -4104,6 +4120,9 @@ tidyCo env@(_, subst) co
     go_prov (ProofIrrelProv co) = ProofIrrelProv (go co)
     go_prov p@(PluginProv _)    = p
     go_prov (ZappedProv fvs)    = ZappedProv $ mapUnionDVarSet (unitDVarSet . substCoVar) (dVarSetElems fvs)
+    go_prov (TcZappedProv fvs coholes)
+                                = TcZappedProv (mapUnionDVarSet (unitDVarSet . substCoVar) (dVarSetElems fvs))
+                                               coholes -- Tidying needed?
 
     substCoVar cv = fromMaybe cv $ lookupVarEnv subst cv
 
@@ -4167,3 +4186,4 @@ provSize (PhantomProv co)    = 1 + coercionSize co
 provSize (ProofIrrelProv co) = 1 + coercionSize co
 provSize (PluginProv _)      = 1
 provSize (ZappedProv _)      = 1
+provSize (TcZappedProv _ _)  = 1
