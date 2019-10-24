@@ -77,7 +77,7 @@ import DsBinds
 import GHC.TypeLits
 import Data.Kind (Constraint)
 
-import Data.ByteString ( unpack )
+import qualified Data.ByteString.Short as BSS ( unpack )
 import Control.Monad
 import Data.List
 
@@ -2746,7 +2746,7 @@ repLiteral :: HsLit GhcRn -> MetaM (Core TH.Lit)
 repLiteral (HsStringPrim _ bs)
   = do dflags   <- getDynFlags
        word8_ty <- lookupType word8TyConName
-       let w8s = unpack bs
+       let w8s = BSS.unpack bs
            w8s_expr = map (\w8 -> mkCoreConApps word8DataCon
                                   [mkWordLit dflags (toInteger w8)]) w8s
        rep2_nw stringPrimLName [mkListExpr word8_ty w8s_expr]

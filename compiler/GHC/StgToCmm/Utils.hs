@@ -79,7 +79,7 @@ import Outputable
 import GHC.Types.RepType
 import CostCentre
 
-import Data.ByteString (ByteString)
+import Data.ByteString.Short (ShortByteString, fromShort)
 import qualified Data.ByteString.Char8 as BS8
 import qualified Data.ByteString as BS
 import qualified Data.Map as M
@@ -95,7 +95,7 @@ import Data.Ord
 -------------------------------------------------------------------------
 
 cgLit :: Literal -> FCode CmmLit
-cgLit (LitString s) = newByteStringCLit s
+cgLit (LitString s) = newByteStringCLit (fastStringToShortByteString s)
  -- not unpackFS; we want the UTF-8 byte stream.
 cgLit other_lit     = do dflags <- getDynFlags
                          return (mkSimpleLit dflags other_lit)
@@ -290,15 +290,16 @@ mkRawRODataLits lbl lits
     needsRelocation _                 = False
 
 mkByteStringCLit
-  :: CLabel -> ByteString -> (CmmLit, GenCmmDecl CmmStatics info stmt)
+  :: CLabel -> ShortByteString -> (CmmLit, GenCmmDecl CmmStatics info stmt)
 -- We have to make a top-level decl for the string,
 -- and return a literal pointing to it
-mkByteStringCLit lbl bytes
+mkByteStringCLit lbl sbs_bytes
   = (CmmLabel lbl, CmmData (Section sec lbl) (CmmStaticsRaw lbl [CmmString bytes]))
   where
     -- This can not happen for String literals (as there \NUL is replaced by
     -- C0 80). However, it can happen with Addr# literals.
     sec = if 0 `BS.elem` bytes then ReadOnlyData else CString
+    bytes = fromShort sbs_bytes
 
 emitRawDataLits :: CLabel -> [CmmLit] -> FCode ()
 -- Emit a data-segment data block
@@ -314,9 +315,9 @@ emitDataCon lbl itbl ccs payload = emitDecl (CmmData (Section Data lbl) (CmmStat
 newStringCLit :: String -> FCode CmmLit
 -- Make a global definition for the string,
 -- and return its label
-newStringCLit str = newByteStringCLit (BS8.pack str)
+newStringCLit str = newByteStringCLit (unsafeMkByteString str)
 
-newByteStringCLit :: ByteString -> FCode CmmLit
+newByteStringCLit :: ShortByteString -> FCode CmmLit
 newByteStringCLit bytes
   = do  { uniq <- newUnique
         ; let (lit, decl) = mkByteStringCLit (mkStringLitLabel uniq) bytes

@@ -500,7 +500,7 @@ info    :: { CmmParse (CLabel, Maybe CmmInfoTable, [LocalReg]) }
                    do dflags <- getDynFlags
                       let prof = profilingInfo dflags $13 $15
                           ty  = Constr (fromIntegral $9)  -- Tag
-                                       (BS8.pack $13)
+                                       (unsafeMkByteString $13)
                           rep = mkRTSRep (fromIntegral $11) $
                                   mkHeapRep dflags False (fromIntegral $5)
                                                   (fromIntegral $7) ty
@@ -1169,7 +1169,7 @@ reserveStackFrame psize preg body = do
 profilingInfo dflags desc_str ty_str
   = if not (gopt Opt_SccProfilingOn dflags)
     then NoProfilingInfo
-    else ProfilingInfo (BS8.pack desc_str) (BS8.pack ty_str)
+    else ProfilingInfo (unsafeMkByteString desc_str) (unsafeMkByteString ty_str)
 
 staticClosure :: UnitId -> FastString -> FastString -> [CmmLit] -> CmmParse ()
 staticClosure pkg cl_label info payload

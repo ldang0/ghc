@@ -88,7 +88,7 @@ import qualified EnumSet
 import qualified GHC.LanguageExtensions as LangExt
 
 -- bytestring
-import Data.ByteString (ByteString)
+import Data.ByteString.Short (ShortByteString)
 
 -- containers
 import Data.Map (Map)
@@ -807,7 +807,7 @@ data Token
   | ITrational FractionalLit
 
   | ITprimchar   SourceText Char     -- Note [Literal source text] in BasicTypes
-  | ITprimstring SourceText ByteString -- Note [Literal source text] @BasicTypes
+  | ITprimstring SourceText ShortByteString -- Note [Literal source text] @BasicTypes
   | ITprimint    SourceText Integer  -- Note [Literal source text] in BasicTypes
   | ITprimword   SourceText Integer  -- Note [Literal source text] in BasicTypes
   | ITprimfloat  FractionalLit

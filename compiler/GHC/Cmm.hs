@@ -38,6 +38,7 @@ import GHC.Cmm.Dataflow.Collections
 import GHC.Cmm.Dataflow.Graph
 import GHC.Cmm.Dataflow.Label
 import Outputable
+import Data.ByteString.Short (ShortByteString)
 import Data.ByteString (ByteString)
 
 -----------------------------------------------------------------------------
@@ -164,7 +165,7 @@ data CmmInfoTable
 
 data ProfilingInfo
   = NoProfilingInfo
-  | ProfilingInfo ByteString ByteString -- closure_type, closure_desc
+  | ProfilingInfo ShortByteString ShortByteString -- closure_type, closure_desc
 
 -----------------------------------------------------------------------------
 --              Static Data

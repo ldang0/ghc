@@ -84,7 +84,7 @@ import DynFlags
 import Unique
 import GHC.Platform.Regs
 
-import Data.ByteString (ByteString)
+import Data.ByteString.Short (ShortByteString, fromShort)
 import qualified Data.ByteString as BS
 import Data.Bits
 import GHC.Cmm.Dataflow.Graph
@@ -192,15 +192,16 @@ mkWordCLit :: DynFlags -> Integer -> CmmLit
 mkWordCLit dflags wd = CmmInt wd (wordWidth dflags)
 
 mkByteStringCLit
-  :: CLabel -> ByteString -> (CmmLit, GenCmmDecl RawCmmStatics info stmt)
+  :: CLabel -> ShortByteString -> (CmmLit, GenCmmDecl RawCmmStatics info stmt)
 -- We have to make a top-level decl for the string,
 -- and return a literal pointing to it
-mkByteStringCLit lbl bytes
+mkByteStringCLit lbl sbs_bytes
   = (CmmLabel lbl, CmmData (Section sec lbl) $ RawCmmStatics lbl [CmmString bytes])
   where
     -- This can not happen for String literals (as there \NUL is replaced by
     -- C0 80). However, it can happen with Addr# literals.
     sec = if 0 `BS.elem` bytes then ReadOnlyData else CString
+    bytes = fromShort sbs_bytes
 
 mkDataLits :: Section -> CLabel -> [CmmLit] -> GenCmmDecl RawCmmStatics info stmt
 -- Build a data-segment data block
