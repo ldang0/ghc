@@ -70,7 +70,6 @@ import ForeignCall
 import Name
 import ErrUtils
 
-import qualified Data.ByteString as BS
 import Data.List
 
 {-

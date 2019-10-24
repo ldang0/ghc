@@ -91,7 +91,6 @@ import ListSetOps       ( minusList )
 import BasicTypes       ( Arity, isConLike )
 import Util
 import Pair
-import Data.ByteString     ( ByteString )
 import Data.Function       ( on )
 import Data.List
 import Data.Ord            ( comparing )

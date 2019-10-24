@@ -66,7 +66,6 @@ import GHC.Platform
 import UniqFM
 import Util
 
-import Data.ByteString.Short (ShortByteString)
 import Data.Int
 import Data.Word
 import Data.Char

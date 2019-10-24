@@ -67,7 +67,6 @@ import Module
 
 import Control.Exception
 import Data.Array
-import Data.ByteString (ByteString)
 import Data.ByteString.Short (ShortByteString)
 import Data.Map (Map)
 import Data.IntMap (IntMap)

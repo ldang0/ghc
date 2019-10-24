@@ -80,7 +80,6 @@ import GHC.Types.RepType
 import CostCentre
 
 import Data.ByteString.Short (ShortByteString, fromShort)
-import qualified Data.ByteString.Char8 as BS8
 import qualified Data.ByteString as BS
 import qualified Data.Map as M
 import Data.Char
