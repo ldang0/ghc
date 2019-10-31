@@ -675,8 +675,7 @@ hscIncrementalFrontend
             -- save the interface that comes back from checkOldIface.
             -- In one-shot mode we don't have the old iface until this
             -- point, when checkOldIface reads it from the disk.
-            let mb_old_hash = fmap (mi_iface_hash . mi_final_exts) mb_checked_iface
-
+            let mb_old_hash = fmap (mi_iface_hash . mi_backend) mb_checked_iface
             case mb_checked_iface of
                 Just iface | not (recompileRequired recomp_reqd) ->
                     -- If the module used TH splices when it was last
@@ -869,7 +868,7 @@ hscMaybeWriteIface dflags iface old_iface location = do
                             HscNothing      -> False
                             HscInterpreted  -> False
                             _               -> True
-        no_change = old_iface == Just (mi_iface_hash (mi_final_exts iface))
+        no_change = old_iface == Just (mi_iface_hash (mi_backend iface))
 
     when (write_interface || force_write_interface) $
           hscWriteIface dflags iface no_change location
@@ -1352,6 +1351,7 @@ hscSimpleIface' tc_result mb_old_iface = do
         <- {-# SCC "MkFinalIface" #-}
            liftIO $
                mkIfaceTc hsc_env safe_mode details tc_result
+    let no_change = mb_old_iface == Just (mi_iface_hash (mi_backend new_iface))
     -- And the answer is ...
     liftIO $ dumpIfaceStats hsc_env
     return (new_iface, mb_old_iface, details)

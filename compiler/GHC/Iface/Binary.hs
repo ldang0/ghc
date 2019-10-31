@@ -148,7 +148,7 @@ readBinIface_ dflags checkHiWay traceBinIFaceReading hi_path ncu = do
     wantedGot "Way" way_descr check_way ppr
     when (checkHiWay == CheckHiWay) $
         errorOnMismatch "mismatched interface file ways" way_descr check_way
-    getWithUserData ncu bh
+    initModIfaceCaches <$> getWithUserData ncu bh
 
 
 -- | This performs a get action after reading the dictionary and symbol
@@ -201,7 +201,7 @@ writeBinIface dflags hi_path mod_iface = do
     put_  bh way_descr
 
 
-    putWithUserData (debugTraceMsg dflags 3) bh mod_iface
+    putWithUserData (debugTraceMsg dflags 3) bh (forgetModIfaceCaches mod_iface)
     -- And send the result to the file
     writeBinMem bh hi_path
 
