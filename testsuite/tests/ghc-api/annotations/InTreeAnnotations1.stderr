@@ -13,7 +13,7 @@
      (NoExtField)
      (FunBind
       (NoExtField)
-      ({ InTreeAnnotations1.hs:4:1-3 }
+      (SrcSpanAnn ApiAnnNotUsed { InTreeAnnotations1.hs:4:1-3 }
        (Unqual
         {OccName: foo}))
       (MG
@@ -23,7 +23,7 @@
           (Match
            (NoExtField)
            (FunRhs
-            ({ InTreeAnnotations1.hs:4:1-3 }
+            (SrcSpanAnn ApiAnnNotUsed { InTreeAnnotations1.hs:4:1-3 }
              (Unqual
               {OccName: foo}))
             (Prefix)
@@ -34,7 +34,7 @@
                [(AddApiAnn
                  (AnnAt)
                  { InTreeAnnotations1.hs:4:6 })])
-              ({ InTreeAnnotations1.hs:4:5 }
+              (SrcSpanAnn ApiAnnNotUsed { InTreeAnnotations1.hs:4:5 }
                (Unqual
                 {OccName: a}))
               ({ InTreeAnnotations1.hs:4:7-11 }
@@ -75,7 +75,7 @@
               ({ InTreeAnnotations1.hs:4:19 }
                (VarPat
                 (NoExtField)
-                ({ InTreeAnnotations1.hs:4:19 }
+                (SrcSpanAnn ApiAnnNotUsed { InTreeAnnotations1.hs:4:19 }
                  (Unqual
                   {OccName: x}))))))]
            (GRHSs
@@ -87,7 +87,7 @@
                ({ InTreeAnnotations1.hs:4:23-31 }
                 (HsVar
                  (NoExtField)
-                 ({ InTreeAnnotations1.hs:4:23-31 }
+                 (SrcSpanAnn ApiAnnNotUsed { InTreeAnnotations1.hs:4:23-31 }
                   (Unqual
                    {OccName: undefined}))))))]
             ({ <no location info> }
@@ -107,7 +107,7 @@
        ,(AddApiAnn
          (AnnEqual)
          { InTreeAnnotations1.hs:6:8 })])
-      ({ InTreeAnnotations1.hs:6:6 }
+      (SrcSpanAnn ApiAnnNotUsed { InTreeAnnotations1.hs:6:6 }
        (Unqual
         {OccName: T}))
       (HsQTvs
@@ -124,7 +124,7 @@
        [({ InTreeAnnotations1.hs:6:10-27 }
          (ConDeclH98
           (NoExtField)
-          ({ InTreeAnnotations1.hs:6:10-12 }
+          (SrcSpanAnn ApiAnnNotUsed { InTreeAnnotations1.hs:6:10-12 }
            (Unqual
             {OccName: MkT}))
           ({ <no location info> }
@@ -139,20 +139,20 @@
                [({ InTreeAnnotations1.hs:6:16 }
                  (FieldOcc
                   (NoExtField)
-                  ({ InTreeAnnotations1.hs:6:16 }
+                  (SrcSpanAnn ApiAnnNotUsed { InTreeAnnotations1.hs:6:16 }
                    (Unqual
                     {OccName: x}))))
                ,({ InTreeAnnotations1.hs:6:18 }
                  (FieldOcc
                   (NoExtField)
-                  ({ InTreeAnnotations1.hs:6:18 }
+                  (SrcSpanAnn ApiAnnNotUsed { InTreeAnnotations1.hs:6:18 }
                    (Unqual
                     {OccName: y}))))]
                ({ InTreeAnnotations1.hs:6:23-25 }
                 (HsTyVar
                  (NoExtField)
                  (NotPromoted)
-                 ({ InTreeAnnotations1.hs:6:23-25 }
+                 (SrcSpanAnn ApiAnnNotUsed { InTreeAnnotations1.hs:6:23-25 }
                   (Unqual
                    {OccName: Int}))))
                (Nothing)))]))
@@ -164,7 +164,7 @@
      (NoExtField)
      (FunBind
       (NoExtField)
-      ({ InTreeAnnotations1.hs:8:1 }
+      (SrcSpanAnn ApiAnnNotUsed { InTreeAnnotations1.hs:8:1 }
        (Unqual
         {OccName: f}))
       (MG
@@ -174,7 +174,7 @@
           (Match
            (NoExtField)
            (FunRhs
-            ({ InTreeAnnotations1.hs:8:1 }
+            (SrcSpanAnn ApiAnnNotUsed { InTreeAnnotations1.hs:8:1 }
              (Unqual
               {OccName: f}))
             (Prefix)
@@ -191,7 +191,7 @@
                  ,(AddApiAnn
                    (AnnCloseC)
                    { InTreeAnnotations1.hs:8:34 })])
-                ({ InTreeAnnotations1.hs:8:4-6 }
+                (SrcSpanAnn ApiAnnNotUsed { InTreeAnnotations1.hs:8:4-6 }
                  (Unqual
                   {OccName: MkT}))
                 (RecCon
@@ -201,7 +201,7 @@
                      ({ InTreeAnnotations1.hs:8:10 }
                       (FieldOcc
                        (NoExtField)
-                       ({ InTreeAnnotations1.hs:8:10 }
+                       (SrcSpanAnn ApiAnnNotUsed { InTreeAnnotations1.hs:8:10 }
                         (Unqual
                          {OccName: x}))))
                      ({ InTreeAnnotations1.hs:8:14-15 }
@@ -213,7 +213,7 @@
                        ({ InTreeAnnotations1.hs:8:15 }
                         (VarPat
                          (NoExtField)
-                         ({ InTreeAnnotations1.hs:8:15 }
+                         (SrcSpanAnn ApiAnnNotUsed { InTreeAnnotations1.hs:8:15 }
                           (Unqual
                            {OccName: v}))))))
                      (False)))
@@ -222,7 +222,7 @@
                      ({ InTreeAnnotations1.hs:8:18 }
                       (FieldOcc
                        (NoExtField)
-                       ({ InTreeAnnotations1.hs:8:18 }
+                       (SrcSpanAnn ApiAnnNotUsed { InTreeAnnotations1.hs:8:18 }
                         (Unqual
                          {OccName: y}))))
                      ({ InTreeAnnotations1.hs:8:22-32 }
@@ -234,13 +234,13 @@
                        ({ InTreeAnnotations1.hs:8:22-27 }
                         (HsVar
                          (NoExtField)
-                         ({ InTreeAnnotations1.hs:8:22-27 }
+                         (SrcSpanAnn ApiAnnNotUsed { InTreeAnnotations1.hs:8:22-27 }
                           (Unqual
                            {OccName: negate}))))
                        ({ InTreeAnnotations1.hs:8:32 }
                         (VarPat
                          (NoExtField)
-                         ({ InTreeAnnotations1.hs:8:32 }
+                         (SrcSpanAnn ApiAnnNotUsed { InTreeAnnotations1.hs:8:32 }
                           (Unqual
                            {OccName: w}))))))
                      (False)))]
@@ -260,19 +260,19 @@
                  ({ InTreeAnnotations1.hs:8:39 }
                   (HsVar
                    (NoExtField)
-                   ({ InTreeAnnotations1.hs:8:39 }
+                   (SrcSpanAnn ApiAnnNotUsed { InTreeAnnotations1.hs:8:39 }
                     (Unqual
                      {OccName: v}))))
                  ({ InTreeAnnotations1.hs:8:41 }
                   (HsVar
                    (NoExtField)
-                   ({ InTreeAnnotations1.hs:8:41 }
+                   (SrcSpanAnn ApiAnnNotUsed { InTreeAnnotations1.hs:8:41 }
                     (Unqual
                      {OccName: +}))))
                  ({ InTreeAnnotations1.hs:8:43 }
                   (HsVar
                    (NoExtField)
-                   ({ InTreeAnnotations1.hs:8:43 }
+                   (SrcSpanAnn ApiAnnNotUsed { InTreeAnnotations1.hs:8:43 }
                     (Unqual
                      {OccName: w}))))))))]
             ({ <no location info> }

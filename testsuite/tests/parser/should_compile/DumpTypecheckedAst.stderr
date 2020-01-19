@@ -39,7 +39,7 @@
             ({ <no location info> }
              (HsVar
               (NoExtField)
-              ({ <no location info> }
+              (SrcSpanAnn ApiAnnNotUsed { <no location info> }
                {Var: DumpTypecheckedAst.$trModule})))))
           ({ <no location info> }
            (HsPar
@@ -65,7 +65,7 @@
       ({ <no location info> }
        (HsVar
         (NoExtField)
-        ({ <no location info> }
+        (SrcSpanAnn ApiAnnNotUsed { <no location info> }
          {Var: $krep})))))
     (False)))
  ,({ <no location info> }
@@ -105,7 +105,7 @@
             ({ <no location info> }
              (HsVar
               (NoExtField)
-              ({ <no location info> }
+              (SrcSpanAnn ApiAnnNotUsed { <no location info> }
                {Var: DumpTypecheckedAst.$trModule})))))
           ({ <no location info> }
            (HsPar
@@ -131,7 +131,7 @@
       ({ <no location info> }
        (HsVar
         (NoExtField)
-        ({ <no location info> }
+        (SrcSpanAnn ApiAnnNotUsed { <no location info> }
          {Var: $krep})))))
     (False)))
  ,({ <no location info> }
@@ -171,7 +171,7 @@
             ({ <no location info> }
              (HsVar
               (NoExtField)
-              ({ <no location info> }
+              (SrcSpanAnn ApiAnnNotUsed { <no location info> }
                {Var: DumpTypecheckedAst.$trModule})))))
           ({ <no location info> }
            (HsPar
@@ -197,7 +197,7 @@
       ({ <no location info> }
        (HsVar
         (NoExtField)
-        ({ <no location info> }
+        (SrcSpanAnn ApiAnnNotUsed { <no location info> }
          {Var: GHC.Types.krep$*})))))
     (False)))
  ,({ <no location info> }
@@ -237,7 +237,7 @@
             ({ <no location info> }
              (HsVar
               (NoExtField)
-              ({ <no location info> }
+              (SrcSpanAnn ApiAnnNotUsed { <no location info> }
                {Var: DumpTypecheckedAst.$trModule})))))
           ({ <no location info> }
            (HsPar
@@ -263,7 +263,7 @@
       ({ <no location info> }
        (HsVar
         (NoExtField)
-        ({ <no location info> }
+        (SrcSpanAnn ApiAnnNotUsed { <no location info> }
          {Var: $krep})))))
     (False)))
  ,({ <no location info> }
@@ -303,7 +303,7 @@
             ({ <no location info> }
              (HsVar
               (NoExtField)
-              ({ <no location info> }
+              (SrcSpanAnn ApiAnnNotUsed { <no location info> }
                {Var: DumpTypecheckedAst.$trModule})))))
           ({ <no location info> }
            (HsPar
@@ -329,7 +329,7 @@
       ({ <no location info> }
        (HsVar
         (NoExtField)
-        ({ <no location info> }
+        (SrcSpanAnn ApiAnnNotUsed { <no location info> }
          {Var: $krep})))))
     (False)))
  ,({ <no location info> }
@@ -415,12 +415,12 @@
         ({ <no location info> }
          (HsVar
           (NoExtField)
-          ({ <no location info> }
+          (SrcSpanAnn ApiAnnNotUsed { <no location info> }
            {Var: $krep})))))
       ({ <no location info> }
        (HsVar
         (NoExtField)
-        ({ <no location info> }
+        (SrcSpanAnn ApiAnnNotUsed { <no location info> }
          {Var: $krep})))))
     (False)))
  ,({ <no location info> }
@@ -440,12 +440,12 @@
         ({ <no location info> }
          (HsVar
           (NoExtField)
-          ({ <no location info> }
+          (SrcSpanAnn ApiAnnNotUsed { <no location info> }
            {Var: $krep})))))
       ({ <no location info> }
        (HsVar
         (NoExtField)
-        ({ <no location info> }
+        (SrcSpanAnn ApiAnnNotUsed { <no location info> }
          {Var: GHC.Types.krep$*})))))
     (False)))
  ,({ <no location info> }
@@ -465,12 +465,12 @@
         ({ <no location info> }
          (HsVar
           (NoExtField)
-          ({ <no location info> }
+          (SrcSpanAnn ApiAnnNotUsed { <no location info> }
            {Var: $krep})))))
       ({ <no location info> }
        (HsVar
         (NoExtField)
-        ({ <no location info> }
+        (SrcSpanAnn ApiAnnNotUsed { <no location info> }
          {Var: $krep})))))
     (False)))
  ,({ <no location info> }
@@ -490,12 +490,12 @@
         ({ <no location info> }
          (HsVar
           (NoExtField)
-          ({ <no location info> }
+          (SrcSpanAnn ApiAnnNotUsed { <no location info> }
            {Var: $krep})))))
       ({ <no location info> }
        (HsVar
         (NoExtField)
-        ({ <no location info> }
+        (SrcSpanAnn ApiAnnNotUsed { <no location info> }
          {Var: $krep})))))
     (False)))
  ,({ <no location info> }
@@ -515,12 +515,12 @@
         ({ <no location info> }
          (HsVar
           (NoExtField)
-          ({ <no location info> }
+          (SrcSpanAnn ApiAnnNotUsed { <no location info> }
            {Var: $krep})))))
       ({ <no location info> }
        (HsVar
         (NoExtField)
-        ({ <no location info> }
+        (SrcSpanAnn ApiAnnNotUsed { <no location info> }
          {Var: $krep})))))
     (False)))
  ,({ <no location info> }
@@ -540,7 +540,7 @@
         ({ <no location info> }
          (HsVar
           (NoExtField)
-          ({ <no location info> }
+          (SrcSpanAnn ApiAnnNotUsed { <no location info> }
            {Var: DumpTypecheckedAst.$tcT})))))
       ({ <no location info> }
        (HsPar
@@ -564,7 +564,7 @@
             ({ <no location info> }
              (HsVar
               (NoExtField)
-              ({ <no location info> }
+              (SrcSpanAnn ApiAnnNotUsed { <no location info> }
                {Var: $krep})))))
           ({ <no location info> }
            (HsPar
@@ -588,7 +588,7 @@
                 ({ <no location info> }
                  (HsVar
                   (NoExtField)
-                  ({ <no location info> }
+                  (SrcSpanAnn ApiAnnNotUsed { <no location info> }
                    {Var: $krep})))))
               ({ <no location info> }
                (HsPar
@@ -612,7 +612,7 @@
                     ({ <no location info> }
                      (HsVar
                       (NoExtField)
-                      ({ <no location info> }
+                      (SrcSpanAnn ApiAnnNotUsed { <no location info> }
                        {Var: $krep})))))
                   ({ <no location info> }
                    (HsWrap
@@ -642,7 +642,7 @@
         ({ <no location info> }
          (HsVar
           (NoExtField)
-          ({ <no location info> }
+          (SrcSpanAnn ApiAnnNotUsed { <no location info> }
            {Var: DumpTypecheckedAst.$tcPeano})))))
       ({ <no location info> }
        (HsWrap
@@ -720,7 +720,7 @@
        (FunBind
         {NameSet:
          []}
-        ({ DumpTypecheckedAst.hs:18:1-4 }
+        (SrcSpanAnn ApiAnnNotUsed { DumpTypecheckedAst.hs:18:1-4 }
          {Var: main})
         (MG
          (MatchGroupTc
@@ -735,7 +735,7 @@
             (Match
              (NoExtField)
              (FunRhs
-              ({ DumpTypecheckedAst.hs:18:1-4 }
+              (SrcSpanAnn ApiAnnNotUsed { DumpTypecheckedAst.hs:18:1-4 }
                {Name: main})
               (Prefix)
               (NoSrcStrict))
@@ -752,7 +752,7 @@
                    ({ DumpTypecheckedAst.hs:18:8-15 }
                     (HsVar
                      (NoExtField)
-                     ({ <no location info> }
+                     (SrcSpanAnn ApiAnnNotUsed { <no location info> }
                       {Var: putStrLn})))
                    ({ DumpTypecheckedAst.hs:18:17-23 }
                     (HsLit

@@ -172,7 +172,10 @@ showAstData bs ba a0 = blankLine $$ showAstData' a0
                    case cast ss of
                         Just (s :: SrcSpan) ->
                           srcSpan s
-                        Nothing -> text "nnnnnnnn"
+                        Nothing -> case cast ss of
+                          Just ((SrcSpanAnn a s) :: SrcSpanAnn) ->
+                            text "SrcSpanAnn" <+> ppr a <+> srcSpan s
+                          Nothing -> text "nnnnnnnn"
                       $$ showAstData' a
 
 normalize_newlines :: String -> String

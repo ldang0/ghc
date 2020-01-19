@@ -1014,7 +1014,7 @@ rep_sig (L loc (CompleteMatchSig _ _st cls mty))
   = rep_complete_sig cls mty loc
 rep_sig (L _ (XSig nec)) = noExtCon nec
 
-rep_ty_sig :: Name -> SrcSpan -> LHsSigType GhcRn -> Located Name
+rep_ty_sig :: Name -> SrcSpan -> LHsSigType GhcRn -> LocatedA Name
            -> MetaM (SrcSpan, Core (M TH.Dec))
 -- Don't create the implicit and explicit variables when desugaring signatures,
 -- see Note [Scoped type variables in class and instance declarations].
@@ -1040,7 +1040,7 @@ rep_ty_sig mk_sig loc sig_ty nm
        ; return (loc, sig) }
 rep_ty_sig _ _ (XHsImplicitBndrs nec) _ = noExtCon nec
 
-rep_patsyn_ty_sig :: SrcSpan -> LHsSigType GhcRn -> Located Name
+rep_patsyn_ty_sig :: SrcSpan -> LHsSigType GhcRn -> LocatedA Name
                   -> MetaM (SrcSpan, Core (M TH.Dec))
 -- represents a pattern synonym type signature;
 -- see Note [Pattern synonym type signatures and Template Haskell] in Convert
@@ -1069,12 +1069,12 @@ rep_patsyn_ty_sig loc sig_ty nm
        ; return (loc, sig) }
 rep_patsyn_ty_sig _ (XHsImplicitBndrs nec) _ = noExtCon nec
 
-rep_wc_ty_sig :: Name -> SrcSpan -> LHsSigWcType GhcRn -> Located Name
+rep_wc_ty_sig :: Name -> SrcSpan -> LHsSigWcType GhcRn -> LocatedA Name
               -> MetaM (SrcSpan, Core (M TH.Dec))
 rep_wc_ty_sig mk_sig loc sig_ty nm
   = rep_ty_sig mk_sig loc (hswc_body sig_ty) nm
 
-rep_inline :: Located Name
+rep_inline :: LocatedA Name
            -> InlinePragma      -- Never defaultInlinePragma
            -> SrcSpan
            -> MetaM [(SrcSpan, Core (M TH.Dec))]
@@ -1087,7 +1087,7 @@ rep_inline nm ispec loc
        ; return [(loc, pragma)]
        }
 
-rep_specialise :: Located Name -> LHsSigType GhcRn -> InlinePragma
+rep_specialise :: LocatedA Name -> LHsSigType GhcRn -> InlinePragma
                -> SrcSpan
                -> MetaM [(SrcSpan, Core (M TH.Dec))]
 rep_specialise nm ty ispec loc
@@ -1128,8 +1128,8 @@ repPhases (ActiveAfter _ i)  = do { MkC arg <- coreIntLit i
                                   ; dataCon' fromPhaseDataConName [arg] }
 repPhases _                  = dataCon allPhasesDataConName
 
-rep_complete_sig :: Located [Located Name]
-                 -> Maybe (Located Name)
+rep_complete_sig :: Located [LocatedA Name]
+                 -> Maybe (LocatedA Name)
                  -> SrcSpan
                  -> MetaM [(SrcSpan, Core (M TH.Dec))]
 rep_complete_sig (L _ cls) mty loc
@@ -1414,7 +1414,7 @@ repE (HsIPVar _ n) = rep_implicit_param_name n >>= repImplicitParamVar
 repE (HsOverLabel _ _ s) = repOverLabel s
 
 repE e@(HsRecFld _ f) = case f of
-  Unambiguous x _ -> repE (HsVar noExtField (noLoc x))
+  Unambiguous x _ -> repE (HsVar noExtField (noLocA x))
   Ambiguous{}     -> notHandled "Ambiguous record selectors" (ppr e)
   XAmbiguousFieldOcc nec -> noExtCon nec
 
@@ -1604,7 +1604,7 @@ repFields (HsRecFields { rec_flds = flds })
   where
     rep_fld :: LHsRecField GhcRn (LHsExpr GhcRn)
             -> MetaM (Core (M TH.FieldExp))
-    rep_fld (L _ fld) = do { fn <- lookupLOcc (hsRecFieldSel fld)
+    rep_fld (L _ fld) = do { fn <- lookupLOcc (reLocA $ hsRecFieldSel fld)
                            ; e  <- repLE (hsRecFieldArg fld)
                            ; repFieldExp fn e }
 
@@ -1613,7 +1613,7 @@ repUpdFields = repListM fieldExpTyConName rep_fld
   where
     rep_fld :: LHsRecUpdField GhcRn -> MetaM (Core (M TH.FieldExp))
     rep_fld (L l fld) = case unLoc (hsRecFieldLbl fld) of
-      Unambiguous sel_name _ -> do { fn <- lookupLOcc (L l sel_name)
+      Unambiguous sel_name _ -> do { fn <- lookupLOcc (L (noAnnSrcSpan l) sel_name)
                                    ; e  <- repLE (hsRecFieldArg fld)
                                    ; repFieldExp fn e }
       Ambiguous{}            -> notHandled "Ambiguous record updates" (ppr fld)
@@ -1824,7 +1824,7 @@ rep_bind (L loc (PatSynBind _ (PSB { psb_id   = syn
        ; patSynD'' <- wrapGenArgSyms args ss patSynD'
        ; return (loc, patSynD'') }
   where
-    mkGenArgSyms :: HsPatSynDetails (Located Name) -> MetaM [GenSymBind]
+    mkGenArgSyms :: HsPatSynDetails (LocatedA Name) -> MetaM [GenSymBind]
     -- for Record Pattern Synonyms we want to conflate the selector
     -- and the pattern-only names in order to provide a nicer TH
     -- API. Whereas inside GHC, record pattern synonym selectors and
@@ -1843,7 +1843,7 @@ rep_bind (L loc (PatSynBind _ (PSB { psb_id   = syn
       = [ (pat, id) | (sel, id) <- genSyms, (sel', pat) <- selsPats
                     , sel == sel' ]
 
-    wrapGenArgSyms :: HsPatSynDetails (Located Name)
+    wrapGenArgSyms :: HsPatSynDetails (LocatedA Name)
                    -> [GenSymBind] -> Core (M TH.Dec) -> MetaM (Core (M TH.Dec))
     wrapGenArgSyms (RecCon _) _  dec = return dec
     wrapGenArgSyms _          ss dec = wrapGenSyms ss dec
@@ -1859,7 +1859,7 @@ repPatSynD :: Core TH.Name
 repPatSynD (MkC syn) (MkC args) (MkC dir) (MkC pat)
   = rep2 patSynDName [syn, args, dir, pat]
 
-repPatSynArgs :: HsPatSynDetails (Located Name) -> MetaM (Core (M TH.PatSynArgs))
+repPatSynArgs :: HsPatSynDetails (LocatedA Name) -> MetaM (Core (M TH.PatSynArgs))
 repPatSynArgs (PrefixCon args)
   = do { args' <- repList nameTyConName lookupLOcc args
        ; repPrefixPatSynArgs args' }
@@ -1978,7 +1978,7 @@ repP (ConPatIn _ dc details)
    }
  where
    rep_fld :: LHsRecField GhcRn (LPat GhcRn) -> MetaM (Core (M (TH.Name, TH.Pat)))
-   rep_fld (L _ fld) = do { MkC v <- lookupLOcc (hsRecFieldSel fld)
+   rep_fld (L _ fld) = do { MkC v <- lookupLOcc (reLocA $ hsRecFieldSel fld)
                           ; MkC p <- repLP (hsRecFieldArg fld)
                           ; rep2 fieldPatName [v,p] }
 
@@ -2036,7 +2036,7 @@ addBinds bs m = mapReaderT (dsExtendMetaEnv (mkNameEnv [(n,DsBound id) | (n,id) 
 
 -- Look up a locally bound name
 --
-lookupLBinder :: Located Name -> MetaM (Core TH.Name)
+lookupLBinder :: LocatedA Name -> MetaM (Core TH.Name)
 lookupLBinder n = lookupBinder (unLoc n)
 
 lookupBinder :: Name -> MetaM (Core TH.Name)
@@ -2051,7 +2051,7 @@ lookupBinder = lookupOcc
 --  * If it is a global name, generate the "original name" representation (ie,
 --   the <module>:<name> form) for the associated entity
 --
-lookupLOcc :: Located Name -> MetaM (Core TH.Name)
+lookupLOcc :: LocatedA Name -> MetaM (Core TH.Name)
 -- Lookup an occurrence; it can't be a splice.
 -- Use the in-scope bindings if they exist
 lookupLOcc n = lookupOcc (unLoc n)
@@ -2549,14 +2549,14 @@ repImplicitParamBind (MkC n) (MkC e) = rep2 implicitParamBindDName [n, e]
 repCtxt :: Core [(M TH.Pred)] -> MetaM (Core (M TH.Cxt))
 repCtxt (MkC tys) = rep2 cxtName [tys]
 
-repDataCon :: Located Name
+repDataCon :: LocatedA Name
            -> HsConDeclDetails GhcRn
            -> MetaM (Core (M TH.Con))
 repDataCon con details
     = do con' <- lookupLOcc con -- See Note [Binders and occurrences]
          repConstr details Nothing [con']
 
-repGadtDataCons :: [Located Name]
+repGadtDataCons :: [LocatedA Name]
                 -> HsConDeclDetails GhcRn
                 -> LHsType GhcRn
                 -> MetaM (Core (M TH.Con))
