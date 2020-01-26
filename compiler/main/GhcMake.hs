@@ -292,7 +292,7 @@ warnUnusedPackages = do
           = map (getPackageDetails dflags)
           . nub . sort
           . map moduleUnitId
-          . moduleEnvKeys
+          . pitKeys
           $ pit
 
         requestedArgs = mapMaybe packageArg (packageFlags dflags)
@@ -304,7 +304,7 @@ warnUnusedPackages = do
     let warn = makeIntoWarning
           (Reason Opt_WarnUnusedPackages)
           (mkPlainErrMsg dflags noSrcSpan msg)
-        msg = vcat [ text "The following packages were specified" <+>
+        msg = vcat [ text "The followi packages were specified" <+>
                      text "via -package or -package-id flags,"
                    , text "but were not needed for compilation:"
                    , nest 2 (vcat (map (withDash . pprUnusedArg) unusedArgs)) ]

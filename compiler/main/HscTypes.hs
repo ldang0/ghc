@@ -1,4 +1,5 @@
 {-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE ExistentialQuantification #-}
 {-
 (c) The University of Glasgow, 2006
 
@@ -61,6 +62,7 @@ module HscTypes (
         ExternalPackageState(..), EpsStats(..), addEpsInStats,
         PackageTypeEnv, PackageIfaceTable, emptyPackageIfaceTable,
         lookupIfaceByModule, emptyPartialModIface, emptyFullModIface, lookupHptByModule,
+        extendPITFake, extendPIT, elemPIT, pitKeys,
 
         PackageInstEnv, PackageFamInstEnv, PackageRuleBase,
         PackageCompleteMatchMap,
@@ -163,6 +165,7 @@ import InteractiveEvalTypes ( Resume )
 import GHCi.Message         ( Pipe )
 import GHCi.RemoteTypes
 import GHC.ForeignSrcLang
+import GHC.Compact
 
 import UniqFM
 import GHC.Hs
@@ -233,6 +236,8 @@ import Control.Monad.Trans.Class
 -- -----------------------------------------------------------------------------
 -- Compilation state
 -- -----------------------------------------------------------------------------
+
+
 
 -- | Status of a compilation to hard-code
 data HscStatus
@@ -601,8 +606,10 @@ type HomePackageTable  = DModuleNameEnv HomeModInfo
         -- Domain = modules in the home package that have been fully compiled
         -- "home" unit id cached here for convenience
 
+data CompactRegion = forall a . CompactRegion (Compact a) | EmptyRegion
+
 -- | Helps us find information about modules in the imported packages
-type PackageIfaceTable = ModuleEnv ModIface
+data PackageIfaceTable = PackageIfaceTable CompactRegion (ModuleEnv ModIface)
         -- Domain = modules in the imported packages
 
 -- | Constructs an empty HomePackageTable
@@ -611,7 +618,137 @@ emptyHomePackageTable  = emptyUDFM
 
 -- | Constructs an empty PackageIfaceTable
 emptyPackageIfaceTable :: PackageIfaceTable
-emptyPackageIfaceTable = emptyModuleEnv
+emptyPackageIfaceTable = PackageIfaceTable EmptyRegion emptyModuleEnv
+
+lookupPIT :: PackageIfaceTable -> Module -> Maybe ModIface
+lookupPIT (PackageIfaceTable _ pit) m = lookupModuleEnv pit m
+
+extendPIT :: PackageIfaceTable -> Module -> ModIface -> IO PackageIfaceTable
+extendPIT (PackageIfaceTable comp pit) m mi = do
+  let raw_iface = forgetModIfaceCaches mi
+  compact_region <- case comp of
+    CompactRegion c -> do
+--      test c raw_iface
+      compactAddWithSharing c raw_iface
+    EmptyRegion -> do
+--      compact () >>= flip test raw_iface
+      compactWithSharing raw_iface
+  let compacted_iface = initModIfaceCaches $ getCompact compact_region
+  return (PackageIfaceTable (CompactRegion compact_region) (extendModuleEnv pit m compacted_iface))
+
+{-
+test :: Compact a -> RawModIface -> IO ()
+test bh (ModIface {
+                 mi_module    = mod,
+                 mi_sig_of    = sig_of,
+                 mi_hsc_src   = hsc_src,
+                 mi_deps      = deps,
+                 mi_usages    = usages,
+                 mi_exports   = exports,
+                 mi_used_th   = used_th,
+                 mi_fixities  = fixities,
+                 mi_warns     = warns,
+                 mi_anns      = anns,
+                 mi_decls     = decls,
+                 mi_insts     = insts,
+                 mi_fam_insts = fam_insts,
+                 mi_rules     = rules,
+                 mi_hpc       = hpc_info,
+                 mi_trust     = trust,
+                 mi_trust_pkg = trust_pkg,
+                 mi_complete_sigs = complete_sigs,
+                 mi_doc_hdr   = doc_hdr,
+                 mi_decl_docs = decl_docs,
+                 mi_arg_docs  = arg_docs,
+                 mi_final_exts = ModIfaceBackend {
+                   mi_iface_hash = iface_hash,
+                   mi_mod_hash = mod_hash,
+                   mi_flag_hash = flag_hash,
+                   mi_opt_hash = opt_hash,
+                   mi_hpc_hash = hpc_hash,
+                   mi_plugin_hash = plugin_hash,
+                   mi_orphan = orphan,
+                   mi_finsts = hasFamInsts,
+                   mi_exp_hash = exp_hash,
+                   mi_orphan_hash = orphan_hash
+                 }}) = do
+        print 0
+        compactAddWithSharing bh mod
+        print 1
+        compactAddWithSharing bh sig_of
+        print 2
+        compactAddWithSharing bh hsc_src
+        print 3
+        compactAddWithSharing bh iface_hash
+        print 4
+        compactAddWithSharing bh mod_hash
+        print 5
+        compactAddWithSharing bh flag_hash
+        print 6
+        compactAddWithSharing bh opt_hash
+        print 7
+        compactAddWithSharing bh hpc_hash
+        print 8
+        compactAddWithSharing bh plugin_hash
+        print 9
+        compactAddWithSharing bh orphan
+        print 10
+        compactAddWithSharing bh hasFamInsts
+        print 11
+        compactAddWithSharing bh deps
+        print 12
+        compactAddWithSharing bh usages
+        print 13
+        pprTraceM "exports" (ppr exports)
+        compactAddWithSharing bh exports
+        print 14
+        compactAddWithSharing bh exp_hash
+        print 15
+        compactAddWithSharing bh used_th
+        print 16
+        compactAddWithSharing bh fixities
+        print 17
+        compactAddWithSharing bh warns
+        print 18
+        compactAddWithSharing bh anns
+        print 19
+        compactAddWithSharing bh decls
+        print 20
+        compactAddWithSharing bh insts
+        print 21
+        compactAddWithSharing bh fam_insts
+        print 22
+        compactAddWithSharing bh rules
+        print 23
+        compactAddWithSharing bh orphan_hash
+        print 24
+        compactAddWithSharing bh hpc_info
+        print 25
+        compactAddWithSharing bh trust
+        print 26
+        compactAddWithSharing bh trust_pkg
+        print 27
+        compactAddWithSharing bh complete_sigs
+        print 28
+        compactAddWithSharing bh doc_hdr
+        print 29
+        compactAddWithSharing bh decl_docs
+        print 30
+        compactAddWithSharing bh arg_docs
+        print 31
+        return ()
+        -}
+
+extendPITFake :: PackageIfaceTable -> Module -> PackageIfaceTable
+extendPITFake (PackageIfaceTable c pit) mod =
+  let fake_iface = emptyFullModIface mod
+  in PackageIfaceTable c (extendModuleEnv pit mod fake_iface)
+
+elemPIT :: Module -> PackageIfaceTable  -> Bool
+elemPIT m (PackageIfaceTable _ pit) = elemModuleEnv m pit
+
+pitKeys :: PackageIfaceTable -> [Module]
+pitKeys (PackageIfaceTable _ pit) = moduleEnvKeys pit
 
 pprHPT :: HomePackageTable -> SDoc
 -- A bit arbitrary for now
@@ -697,7 +834,7 @@ lookupIfaceByModule
 lookupIfaceByModule hpt pit mod
   = case lookupHptByModule hpt mod of
        Just hm -> Just (hm_iface hm)
-       Nothing -> lookupModuleEnv pit mod
+       Nothing -> lookupPIT pit mod
 
 -- If the module does come from the home package, why do we look in the PIT as well?
 -- (a) In OneShot mode, even home-package modules accumulate in the PIT
@@ -3295,7 +3432,7 @@ phaseForeignLanguage phase = case phase of
   Phase.MergeForeign -> Just RawObject
   _                  -> Nothing
 
--------------------------------------------
+
 
 -- Take care, this instance only forces to the degree necessary to
 -- avoid major space leaks.
@@ -3305,3 +3442,4 @@ instance (NFData (IfaceBackendExts (phase :: ModIfacePhase)), NFData (IfaceDeclE
     rnf f1 `seq` rnf f2 `seq` f3 `seq` f4 `seq` f5 `seq` f6 `seq` rnf f7 `seq` f8 `seq`
     f9 `seq` rnf f10 `seq` rnf f11 `seq` f12 `seq` rnf f13 `seq` rnf f14 `seq` rnf f15 `seq`
     rnf f16 `seq` f17 `seq` rnf f18 `seq` rnf f19 `seq` f20 `seq` f21 `seq` f22 `seq` rnf f23
+

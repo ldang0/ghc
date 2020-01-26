@@ -25,7 +25,6 @@ import Avail
 import qualified Data.Array as A
 import qualified Data.Map as M
 import qualified Data.Set as S
-import Data.ByteString            ( ByteString )
 import Data.Data                  ( Typeable, Data )
 import Data.Semigroup             ( Semigroup(..) )
 import Data.Word                  ( Word8 )
@@ -71,7 +70,8 @@ data HieFile = HieFile
     , hie_exports :: [AvailInfo]
     -- ^ The names that this module exports
 
-    , hie_hs_src :: ByteString
+    -- Should be ShortByteString
+    , hie_hs_src :: FastString
     -- ^ Raw bytes of the initial Haskell source
     }
 instance Binary HieFile where
@@ -90,6 +90,7 @@ instance Binary HieFile where
     <*> get bh
     <*> get bh
     <*> get bh
+
 
 
 {-

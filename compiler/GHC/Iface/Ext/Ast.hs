@@ -42,6 +42,7 @@ import Var                        ( Id, Var, setVarName, varName, varType )
 import TcRnTypes
 import GHC.Iface.Utils            ( mkIfaceExports )
 import Panic
+import FastString
 
 import GHC.Iface.Ext.Types
 import GHC.Iface.Ext.Utils
@@ -237,7 +238,7 @@ mkHieFile ms ts rs = do
       , hie_asts = asts'
       -- mkIfaceExports sorts the AvailInfos for stability
       , hie_exports = mkIfaceExports (tcg_exports ts)
-      , hie_hs_src = src
+      , hie_hs_src = mkFastStringByteString src
       }
 
 getCompressedAsts :: TypecheckedSource -> RenamedSource

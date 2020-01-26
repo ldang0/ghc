@@ -872,6 +872,7 @@ simplExprC env expr cont
           return (wrapFloats floats expr') }
 
 --------------------------------------------------
+{-# SCC simplExprF #-}
 simplExprF :: SimplEnv
            -> InExpr     -- A term-valued expression, never (Type ty)
            -> SimplCont
@@ -1212,6 +1213,7 @@ simplTick env tickish expr cont
 ************************************************************************
 -}
 
+{-# SCC rebuild #-}
 rebuild :: SimplEnv -> OutExpr -> SimplCont -> SimplM (SimplFloats, OutExpr)
 -- At this point the substitution in the SimplEnv should be irrelevant;
 -- only the in-scope set matters
@@ -1772,6 +1774,7 @@ simplIdF env var cont
 ---------------------------------------------------------
 --      Dealing with a call site
 
+{-# SCC completeCall #-}
 completeCall :: SimplEnv -> OutId -> SimplCont -> SimplM (SimplFloats, OutExpr)
 completeCall env var cont
   | Just expr <- callSiteInline dflags var active_unf
@@ -1813,6 +1816,7 @@ completeCall env var cont
                 nest 4 (vcat [text "Inlined fn: " <+> nest 2 (ppr unfolding),
                               text "Cont:  " <+> ppr cont])]
 
+{-# SCC rebuildCall #-}
 rebuildCall :: SimplEnv
             -> ArgInfo
             -> SimplCont
@@ -1993,6 +1997,7 @@ all this at once is TOO HARD!
 ************************************************************************
 -}
 
+{-# SCC tryRules #-}
 tryRules :: SimplEnv -> [CoreRule]
          -> Id -> [ArgSpec]
          -> SimplCont
@@ -2439,6 +2444,7 @@ extra complication is not clear.
 ---------------------------------------------------------
 --      Eliminate the case if possible
 
+{-# SCC rebuildCase #-}
 rebuildCase, reallyRebuildCase
    :: SimplEnv
    -> OutExpr          -- Scrutinee

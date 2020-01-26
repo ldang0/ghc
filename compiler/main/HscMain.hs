@@ -1424,6 +1424,7 @@ hscGenHardCode hsc_env cgguts location output_filename = do
             -- cg_tycons includes newtypes, for the benefit of External Core,
             -- but we don't generate any code for newtypes
 
+
         -------------------
         -- PREPARE FOR CODE GENERATION
         -- Do saturation and convert to A-normal form
