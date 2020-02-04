@@ -494,9 +494,11 @@ data IfaceExpr
   | IfaceECase  IfaceExpr IfaceType     -- See Note [Empty case alternatives]
   | IfaceLet    IfaceBinding  IfaceExpr
   | IfaceCast   IfaceExpr IfaceCoercion
-  | IfaceLit    Literal
+  | IfaceLit    IfaceLiteral
   | IfaceFCall  ForeignCall IfaceType
   | IfaceTick   IfaceTickish IfaceExpr    -- from Tick tickish E
+
+type IfaceLiteral = LiteralX ()
 
 data IfaceTickish
   = IfaceHpcTick Module Int                -- from HpcTick x
@@ -511,7 +513,7 @@ type IfaceAlt = (IfaceConAlt, [IfLclName], IfaceExpr)
 
 data IfaceConAlt = IfaceDefault
                  | IfaceDataAlt IfExtName
-                 | IfaceLitAlt Literal
+                 | IfaceLitAlt IfaceLiteral
 
 data IfaceBinding
   = IfaceNonRec IfaceLetBndr IfaceExpr

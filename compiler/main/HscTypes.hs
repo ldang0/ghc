@@ -628,15 +628,14 @@ extendPIT (PackageIfaceTable comp pit) m mi = do
   let raw_iface = forgetModIfaceCaches mi
   compact_region <- case comp of
     CompactRegion c -> do
---      test c raw_iface
-      compactAddWithSharing c raw_iface
+  ---    test c raw_iface
+      compactAdd c raw_iface
     EmptyRegion -> do
---      compact () >>= flip test raw_iface
-      compactWithSharing raw_iface
+   --   compact () >>= flip test raw_iface
+      compact raw_iface
   let compacted_iface = initModIfaceCaches $ getCompact compact_region
   return (PackageIfaceTable (CompactRegion compact_region) (extendModuleEnv pit m compacted_iface))
 
-{-
 test :: Compact a -> RawModIface -> IO ()
 test bh (ModIface {
                  mi_module    = mod,
@@ -699,7 +698,6 @@ test bh (ModIface {
         print 12
         compactAddWithSharing bh usages
         print 13
-        pprTraceM "exports" (ppr exports)
         compactAddWithSharing bh exports
         print 14
         compactAddWithSharing bh exp_hash
@@ -712,6 +710,52 @@ test bh (ModIface {
         print 18
         compactAddWithSharing bh anns
         print 19
+        let test_one (IfaceId a b c d) = do
+              print "start"
+              pprTrace "decl1" (ppr a) (compactAddWithSharing bh a)
+              pprTrace "decl2" (ppr b) (compactAddWithSharing bh b)
+              pprTrace "decl3" (ppr c) (compactAddWithSharing bh c)
+              case d of
+                NoInfo -> return ()
+                HasInfo hs ->
+                  mapM_ (\i -> case i of
+                                HsUnfold _ u ->
+                                 do_u u
+                                _ -> return ()) hs
+              print "done"
+              return ()
+            test_one d = do
+              pprTraceM "start" (ppr d)
+              pprTrace "decl-other" (ppr d) (compactAddWithSharing bh d)
+              print "end"
+              return ()
+
+            do_u (IfCoreUnfold _ i_e) = do_ie i_e
+            do_u _ = return ()
+
+            do_ie x = case x of
+                IfaceLcl    l -> do
+                  pprTrace "e-lcl" (ppr l) (compactAddWithSharing bh l)
+                  return  ()
+                IfaceType   t -> do
+                  pprTrace "e-t" (ppr t) (compactAddWithSharing bh t)
+                  return ()
+--                IfaceCo     co
+--                IfaceTuple  TupleSort [IfaceExpr]   -- Saturated; type arguments omitted
+  --              IfaceLam    IfaceLamBndr IfaceExpr
+                IfaceApp   e1 e2 -> do_ie e1 >> do_ie e2
+  --              IfaceCase   IfaceExpr IfLclName [IfaceAlt]
+    --            IfaceECase  IfaceExpr IfaceType     -- See Note [Empty case alternatives]
+      --          IfaceLet    IfaceBinding  IfaceExpr
+       --         IfaceCast   IfaceExpr IfaceCoercion
+                IfaceLit   l -> do
+                  pprTrace "e-l" (ppr l) (compactAddWithSharing bh l)
+                  return ()
+         --       IfaceFCall  ForeignCall IfaceType
+           --     IfaceTick   IfaceTickish IfaceExpr    -- from Tick tickish E
+                _ -> return ()
+
+--        mapM_ (\d -> test_one d) (map snd decls)
         compactAddWithSharing bh decls
         print 20
         compactAddWithSharing bh insts
@@ -737,7 +781,6 @@ test bh (ModIface {
         compactAddWithSharing bh arg_docs
         print 31
         return ()
-        -}
 
 extendPITFake :: PackageIfaceTable -> Module -> PackageIfaceTable
 extendPITFake (PackageIfaceTable c pit) mod =

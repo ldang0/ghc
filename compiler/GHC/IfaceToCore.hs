@@ -27,6 +27,7 @@ module GHC.IfaceToCore (
 import GhcPrelude
 
 import TcTypeNats(typeNatCoAxiomRules)
+import TysPrim
 import GHC.Iface.Syntax
 import GHC.Iface.Load
 import GHC.Iface.Env
@@ -1383,7 +1384,7 @@ tcIfaceTickish (IfaceSCC  cc tick push) = return (ProfNote cc tick push)
 tcIfaceTickish (IfaceSource src name)   = return (SourceNote src name)
 
 -------------------------
-tcIfaceLit :: Literal -> IfL Literal
+tcIfaceLit :: LiteralX () -> IfL Literal
 -- Integer literals deserialise to (LitInteger i <error thunk>)
 -- so tcIfaceLit just fills in the type.
 -- See Note [Integer literals] in Literal
@@ -1396,7 +1397,21 @@ tcIfaceLit (LitNumber LitNumInteger i _)
 tcIfaceLit (LitNumber LitNumNatural i _)
   = do t <- tcIfaceTyConByName naturalTyConName
        return (mkLitNatural i (mkTyConTy t))
-tcIfaceLit lit = return lit
+tcIfaceLit (LitChar c) = return $ LitChar c
+tcIfaceLit (LitNumber t i _) =
+  let ty = case t of
+            LitNumInt     -> intPrimTy
+            LitNumInt64   -> int64PrimTy
+            LitNumWord    -> wordPrimTy
+            LitNumWord64  -> word64PrimTy
+  in return $ LitNumber t i ty
+tcIfaceLit (LitString s) = return (LitString s)
+tcIfaceLit LitNullAddr = return LitNullAddr
+tcIfaceLit LitRubbish = return LitRubbish
+tcIfaceLit (LitFloat f) = return (LitFloat f)
+tcIfaceLit (LitDouble d) = return (LitDouble d)
+tcIfaceLit (LitLabel l d e) = return (LitLabel l d e)
+  --        tcIfaceLit lit = return lit
 
 -------------------------
 tcIfaceAlt :: CoreExpr -> (TyCon, [Type])

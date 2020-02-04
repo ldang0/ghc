@@ -10,7 +10,7 @@ import FastString
 import Type
 import CoreSyn
 import MkCore
-import Literal ( Literal(..) )
+import Literal ( LiteralX(..) )
 import TcEvidence
 import HscTypes
 import DynFlags

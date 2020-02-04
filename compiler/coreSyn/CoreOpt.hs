@@ -32,7 +32,7 @@ import {-#SOURCE #-} CoreUnfold ( mkUnfolding )
 import MkCore ( FloatBind(..) )
 import PprCore  ( pprCoreBindings, pprRules )
 import OccurAnal( occurAnalyseExpr, occurAnalysePgm )
-import Literal  ( Literal(LitString) )
+import Literal  ( Literal, LiteralX(LitString) )
 import Id
 import IdInfo   ( unfoldingInfo, setUnfoldingInfo, setRuleInfo, IdInfo (..) )
 import Var      ( isNonCoVarId )
