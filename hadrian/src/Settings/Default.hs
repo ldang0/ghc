@@ -74,7 +74,9 @@ stage0Packages = do
              , templateHaskell
              , text
              , transformers
-             , unlit                         ]
+             , unlit
+             , haddock
+             ]
           ++ [ terminfo | not windowsHost, not cross ]
           ++ [ touchy   | windowsHost                ]
 
